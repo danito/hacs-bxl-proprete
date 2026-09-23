@@ -1,0 +1,5 @@
+DOMAIN = "bxl_proprete"
+CONF_STREET = "street"
+CONF_NUMBER = "number"
+CONF_ZIP = "zip"
+CONF_COMMUNE = "commune"
