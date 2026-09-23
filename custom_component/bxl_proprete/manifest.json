@@ -1,0 +1,10 @@
+{
+  "domain": "bxl_proprete",
+  "name": "Bruxelles Propreté",
+  "codeowners": ["@danito"],
+  "config_flow": true,
+  "dependencies": [],
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "version": "1.0.0"
+}

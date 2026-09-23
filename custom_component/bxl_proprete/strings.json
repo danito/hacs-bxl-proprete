@@ -1,0 +1,15 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Bruxelles Propreté Address",
+        "data": {
+          "street": "Street",
+          "number": "Number",
+          "zip": "Zip Code",
+          "commune": "Commune"
+        }
+      }
+    }
+  }
+}
