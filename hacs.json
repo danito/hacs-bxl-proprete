@@ -1,0 +1,6 @@
+{
+  "name": "Bruxelles Propreté",
+  "iot_class": "cloud_polling",
+  "render_readme": true,
+  "country": ["BE"]
+}
