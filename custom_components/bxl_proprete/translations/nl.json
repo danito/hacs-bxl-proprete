@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Bruxelles Propreté",
+        "description": "Voer het adres in zoals het op arp-gan.be staat: straatnaam (zonder huisnummer), huisnummer, postcode en gemeente.",
+        "data": {
+          "street": "Straatnaam",
+          "number": "Huisnummer",
+          "zip": "Postcode",
+          "commune": "Gemeente"
+        }
+      }
+    },
+    "error": {
+      "invalid_address": "Adres niet herkend door ARP-GAN. Controleer de straat, het huisnummer, de postcode en de gemeente.",
+      "unknown": "Onverwachte fout — raadpleeg de Home Assistant logbestanden."
+    },
+    "abort": {
+      "already_configured": "Dit adres is al geconfigureerd."
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Bruxelles Propreté",
+        "description": "Entrez l'adresse telle qu'elle apparaît sur arp-gan.be : nom de la rue (sans le numéro), numéro de maison, code postal et commune.",
+        "data": {
+          "street": "Nom de la rue",
+          "number": "Numéro",
+          "zip": "Code postal",
+          "commune": "Commune"
+        }
+      }
+    },
+    "error": {
+      "invalid_address": "Adresse non reconnue par ARP-GAN. Vérifiez la rue, le numéro, le code postal et la commune.",
+      "unknown": "Erreur inattendue — consultez les journaux de Home Assistant."
+    },
+    "abort": {
+      "already_configured": "Cette adresse est déjà configurée."
+    }
+  }
+}
