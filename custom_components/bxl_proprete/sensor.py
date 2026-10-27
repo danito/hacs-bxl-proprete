@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import datetime as dt
 import logging
+import re
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
@@ -10,10 +11,23 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DAY_NAME_TO_WEEKDAY, DESC_RAMASSAGE_DAY_OFFSET, DOMAIN
+from .const import (
+    BAG_COLORS,
+    DAY_NAME_TO_WEEKDAY,
+    DOMAIN,
+    GREEN_PUT_OUT_DAYS_BEFORE,
+    WEEKLY_PUT_OUT_DAYS_BEFORE,
+)
 from .coordinator import BxlPropreteCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _bag_colors(text: str | None) -> list[str]:
+    """Bag colours named in a desc_ramassage text, e.g. "... bags YELLOW,WHITE ..." -> ["YELLOW", "WHITE"]."""
+    words = re.findall(r"[A-Za-z]+", text or "")
+    colors = [BAG_COLORS[w.upper()] for w in words if w.upper() in BAG_COLORS]
+    return list(dict.fromkeys(colors))
 
 
 async def async_setup_entry(
@@ -52,6 +66,10 @@ class BxlPropreteNextGreenBagSensor(CoordinatorEntity[BxlPropreteCoordinator], S
         if upcoming:
             attrs["days_until"] = (upcoming[0] - dt.date.today()).days
             attrs["human_readable"] = self._human_readable(upcoming[0])
+            attrs["put_out_date"] = (
+                upcoming[0] - dt.timedelta(days=GREEN_PUT_OUT_DAYS_BEFORE)
+            ).isoformat()
+            attrs["bag_colors"] = ["GREEN"]
         # img_ramassage is provided by ARP-GAN but is known to sometimes not
         # match the actual schedule for an address — use for display only.
         img = (self.coordinator.data or {}).get("img_ramassage", "").strip()
@@ -78,11 +96,8 @@ class BxlPropreteNextGreenBagSensor(CoordinatorEntity[BxlPropreteCoordinator], S
 class BxlPropreteNextWeeklyCollectionSensor(CoordinatorEntity[BxlPropreteCoordinator], SensorEntity):
     """Next recurring bag collection day, computed from desc_ramassage.
 
-    Note: ARP-GAN's desc_ramassage day labels are consistently one day later
-    than the actual pickup day (confirmed against the household's physical
-    collection days and against ARP-GAN's own calendar graphic, which is
-    correct). DESC_RAMASSAGE_DAY_OFFSET in const.py corrects for this.
-    SacsVerts (green bag dates) is NOT affected.
+    desc_ramassage is keyed by collection day; the bags go out the evening
+    before, which is exposed as the put_out_date attribute.
     """
 
     _attr_device_class = SensorDeviceClass.DATE
@@ -111,6 +126,10 @@ class BxlPropreteNextWeeklyCollectionSensor(CoordinatorEntity[BxlPropreteCoordin
         if next_day:
             attrs["days_until"] = (next_day - dt.date.today()).days
             attrs["human_readable"] = self._human_readable(next_day)
+            attrs["put_out_date"] = (
+                next_day - dt.timedelta(days=WEEKLY_PUT_OUT_DAYS_BEFORE)
+            ).isoformat()
+            attrs["bag_colors"] = _bag_colors(desc)
         # img_ramassage is provided by ARP-GAN but is known to sometimes not
         # match the actual schedule for an address — use for display only.
         img = (self.coordinator.data or {}).get("img_ramassage", "").strip()
@@ -122,7 +141,7 @@ class BxlPropreteNextWeeklyCollectionSensor(CoordinatorEntity[BxlPropreteCoordin
         desc_ramassage = (self.coordinator.data or {}).get("desc_ramassage", {})
         today = dt.date.today()
         active_days = {
-            (DAY_NAME_TO_WEEKDAY[day] + DESC_RAMASSAGE_DAY_OFFSET) % 7: text
+            DAY_NAME_TO_WEEKDAY[day]: text
             for day, text in desc_ramassage.items()
             if day in DAY_NAME_TO_WEEKDAY and text
         }
